@@ -9,9 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alicebob/miniredis/v2/server"
 	"github.com/labstack/echo/v4"
+	"github.com/zhikariz/weather-app/internal/builder"
 	"github.com/zhikariz/weather-app/internal/config"
+	"github.com/zhikariz/weather-app/internal/http/binder"
+	"github.com/zhikariz/weather-app/internal/http/server"
+	"github.com/zhikariz/weather-app/internal/http/validator"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
