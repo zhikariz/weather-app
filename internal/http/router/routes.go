@@ -18,6 +18,26 @@ func PublicRoutes(userHandler *handler.UserHandler) []*Route {
 			Path:    "/users",
 			Handler: userHandler.GetAllUsers,
 		},
+		{
+			Method:  echo.GET,
+			Path:    "/users/:id",
+			Handler: userHandler.GetUserByID,
+		},
+		{
+			Method:  echo.POST,
+			Path:    "/users",
+			Handler: userHandler.CreateUser,
+		},
+		{
+			Method:  echo.PUT,
+			Path:    "/users/:id",
+			Handler: userHandler.UpdateUser,
+		},
+		{
+			Method:  echo.DELETE,
+			Path:    "/users/:id",
+			Handler: userHandler.DeleteUser,
+		},
 	}
 }
 

@@ -37,7 +37,7 @@ func ValidatorErrors(err error) map[string]string {
 		for _, err := range castedObject {
 			switch err.Tag() {
 			case "required":
-				fields[err.Field()] = fmt.Sprintf("%s is required", err.Field())
+				fields[err.Field()] = fmt.Sprintf("field %s harus di isi", err.Field())
 			default:
 				fields[err.Field()] = fmt.Sprintf("%s error with tag %s should be %s", err.Field(), err.Tag(), err.Param())
 			}

@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/zhikariz/weather-app/entity"
+	"github.com/zhikariz/weather-app/internal/http/validator"
 	"github.com/zhikariz/weather-app/internal/service"
 )
 
@@ -21,4 +23,76 @@ func (h *UserHandler) GetAllUsers(ctx echo.Context) error {
 		return ctx.JSON(http.StatusUnprocessableEntity, err)
 	}
 	return ctx.JSON(http.StatusOK, users)
+}
+
+func (h *UserHandler) CreateUser(ctx echo.Context) error {
+	var input struct {
+		Name string `json:"name" validate:"required"`
+	}
+
+	if err := ctx.Bind(&input); err != nil {
+		return ctx.JSON(http.StatusBadRequest, validator.ValidatorErrors(err))
+	}
+
+	user := entity.NewUser(input.Name)
+	err := h.userService.Create(ctx.Request().Context(), user)
+	if err != nil {
+		return ctx.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	return ctx.JSON(http.StatusCreated, user)
+}
+
+func (h *UserHandler) UpdateUser(ctx echo.Context) error {
+	var input struct {
+		ID   int64  `param:"id" validate:"required"`
+		Name string `json:"name" validate:"required"`
+	}
+
+	if err := ctx.Bind(&input); err != nil {
+		return ctx.JSON(http.StatusBadRequest, validator.ValidatorErrors(err))
+	}
+
+	user := entity.UpdateUser(input.ID, input.Name)
+
+	err := h.userService.Update(ctx.Request().Context(), user)
+	if err != nil {
+		return ctx.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	return ctx.JSON(http.StatusOK, user)
+}
+
+func (h *UserHandler) DeleteUser(ctx echo.Context) error {
+	var input struct {
+		ID int64 `param:"id" validate:"required"`
+	}
+
+	if err := ctx.Bind(&input); err != nil {
+		return ctx.JSON(http.StatusBadRequest, validator.ValidatorErrors(err))
+	}
+
+	err := h.userService.Delete(ctx.Request().Context(), input.ID)
+	if err != nil {
+		return ctx.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	return ctx.NoContent(http.StatusNoContent)
+}
+
+func (h *UserHandler) GetUserByID(ctx echo.Context) error {
+	var input struct {
+		ID int64 `param:"id" validate:"required"`
+	}
+
+	if err := ctx.Bind(&input); err != nil {
+		return ctx.JSON(http.StatusBadRequest, validator.ValidatorErrors(err))
+	}
+
+	user, err := h.userService.FindByID(ctx.Request().Context(), input.ID)
+	if err != nil {
+		return ctx.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	return ctx.JSON(http.StatusOK, user)
 }
