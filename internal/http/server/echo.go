@@ -1,6 +1,7 @@
 package server
 
 import (
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/zhikariz/weather-app/internal/config"
@@ -33,7 +34,7 @@ func NewServer(
 	}
 
 	for _, private := range privateRoutes {
-		v1.Add(private.Method, private.Path, private.Handler)
+		v1.Add(private.Method, private.Path, private.Handler, JWTProtected(cfg.JWT.SecretKey))
 	}
 
 	e.GET("/ping", func(c echo.Context) error {
@@ -41,4 +42,10 @@ func NewServer(
 	})
 
 	return &Server{e}
+}
+
+func JWTProtected(secretKey string) echo.MiddlewareFunc {
+	return echojwt.WithConfig(echojwt.Config{
+		SigningKey: []byte(secretKey),
+	})
 }

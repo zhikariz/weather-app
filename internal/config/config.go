@@ -11,6 +11,12 @@ import (
 type Config struct {
 	Port     string         `env:"PORT" envDefault:"8080"`
 	Postgres PostgresConfig `envPrefix:"POSTGRES_"`
+	JWT      JwtConfig      `envPrefix:"JWT_"`
+}
+
+// JwtConfig is a config for jwt
+type JwtConfig struct {
+	SecretKey string `env:"SECRET_KEY"`
 }
 
 // PostgresConfig is a config for postgres
