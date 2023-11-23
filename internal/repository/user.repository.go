@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/zhikariz/weather-app/entity"
 	"gorm.io/gorm"
@@ -54,6 +55,14 @@ func (r *UserRepository) FindByID(ctx context.Context, id int64) (*entity.User, 
 	user := new(entity.User)
 	if err := r.db.WithContext(ctx).First(&user, id).Error; err != nil {
 		return nil, err
+	}
+	return user, nil
+}
+
+func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*entity.User, error) {
+	user := new(entity.User)
+	if err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, errors.New("user with that email not found")
 	}
 	return user, nil
 }

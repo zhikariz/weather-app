@@ -1,0 +1,8 @@
+BEGIN;
+
+
+ALTER TABLE "public"."users"
+DROP COLUMN IF EXISTS email,
+DROP COLUMN IF EXISTS password;
+
+COMMIT;
