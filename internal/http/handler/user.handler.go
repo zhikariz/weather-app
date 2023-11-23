@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/zhikariz/weather-app/common"
 	"github.com/zhikariz/weather-app/entity"
 	"github.com/zhikariz/weather-app/internal/http/validator"
 	"github.com/zhikariz/weather-app/internal/service"
@@ -18,6 +22,16 @@ func NewUserHandler(userService service.UserUseCase) *UserHandler {
 }
 
 func (h *UserHandler) GetAllUsers(ctx echo.Context) error {
+	// Parse the token
+	userClaim := ctx.Get("user").(*jwt.Token)
+	claims := userClaim.Claims.(*common.JwtCustomClaims)
+
+	if claims.Email == "helmi@ganteng.com" {
+		return ctx.JSON(http.StatusForbidden, errors.New("you don't have permission to access this resource"))
+	}
+
+	fmt.Println(claims.Email)
+
 	users, err := h.userService.FindAll(ctx.Request().Context())
 	if err != nil {
 		return ctx.JSON(http.StatusUnprocessableEntity, err)
