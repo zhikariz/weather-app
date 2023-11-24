@@ -9,24 +9,36 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/zhikariz/weather-app/common"
 	"github.com/zhikariz/weather-app/entity"
+	"github.com/zhikariz/weather-app/internal/config"
 	"github.com/zhikariz/weather-app/internal/http/validator"
 	"github.com/zhikariz/weather-app/internal/service"
 )
 
 type UserHandler struct {
+	cfg         *config.Config
 	userService service.UserUseCase
 }
 
-func NewUserHandler(userService service.UserUseCase) *UserHandler {
-	return &UserHandler{userService}
+func NewUserHandler(
+	cfg *config.Config,
+	userService service.UserUseCase) *UserHandler {
+	return &UserHandler{cfg, userService}
 }
 
 func (h *UserHandler) GetAllUsers(ctx echo.Context) error {
 	// Parse the token
-	userClaim := ctx.Get("user").(*jwt.Token)
-	claims := userClaim.Claims.(*common.JwtCustomClaims)
+	token := ctx.Get("user").(string)
 
-	if claims.Email == "helmi@ganteng.com" {
+	claims := &common.JwtCustomClaims{}
+	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(h.cfg.JWT.SecretKey), nil
+	})
+
+	if err != nil {
+		return ctx.JSON(http.StatusForbidden, errors.New("unauthorized"))
+	}
+
+	if claims.Email != "helmi@ganteng.com" {
 		return ctx.JSON(http.StatusForbidden, errors.New("you don't have permission to access this resource"))
 	}
 

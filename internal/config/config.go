@@ -12,10 +12,15 @@ type Config struct {
 	Port     string         `env:"PORT" envDefault:"8080"`
 	Postgres PostgresConfig `envPrefix:"POSTGRES_"`
 	JWT      JwtConfig      `envPrefix:"JWT_"`
+	Session  SessionConfig  `envPrefix:"SESSION_"`
 }
 
 // JwtConfig is a config for jwt
 type JwtConfig struct {
+	SecretKey string `env:"SECRET_KEY"`
+}
+
+type SessionConfig struct {
 	SecretKey string `env:"SECRET_KEY"`
 }
 

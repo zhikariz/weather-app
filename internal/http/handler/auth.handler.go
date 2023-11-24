@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/zhikariz/weather-app/internal/http/validator"
 	"github.com/zhikariz/weather-app/internal/service"
@@ -47,6 +49,18 @@ func (h *AuthHandler) Login(ctx echo.Context) error {
 
 	data := map[string]string{
 		"access_token": accessToken,
+	}
+
+	sess, _ := session.Get("auth-sessions", ctx)
+	sess.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   600,
+		HttpOnly: true,
+	}
+	sess.Values["token"] = accessToken
+	err = sess.Save(ctx.Request(), ctx.Response())
+	if err != nil {
+		return ctx.JSON(http.StatusUnprocessableEntity, err)
 	}
 
 	return ctx.JSON(http.StatusOK, data)

@@ -21,7 +21,9 @@ func PublicRoutes(authHandler *handler.AuthHandler) []*Route {
 	}
 }
 
-func PrivateRoutes(userHandler *handler.UserHandler) []*Route {
+func PrivateRoutes(
+	userHandler *handler.UserHandler,
+) []*Route {
 	return []*Route{
 		{
 			Method:  echo.GET,
