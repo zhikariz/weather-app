@@ -13,6 +13,7 @@ import (
 	"github.com/zhikariz/weather-app/internal/config"
 	"github.com/zhikariz/weather-app/internal/http/binder"
 	"github.com/zhikariz/weather-app/internal/http/router"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Server struct {
@@ -47,6 +48,12 @@ func NewServer(
 
 	e.GET("/ping", func(c echo.Context) error {
 		return c.String(200, "pong")
+	})
+
+	e.GET("/generate-password/:password", func(c echo.Context) error {
+		password := c.Param("password")
+		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		return c.String(200, string(hashedPassword))
 	})
 
 	return &Server{e}

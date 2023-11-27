@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/zhikariz/weather-app/entity"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginUseCase interface {
@@ -36,7 +37,8 @@ func (s *LoginService) Login(ctx context.Context, email, password string) (*enti
 		return nil, errors.New("user with that email not found")
 	}
 
-	if user.Password != password {
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
 		return nil, errors.New("incorrect login credentials")
 	}
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/zhikariz/weather-app/entity"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserUseCase interface {
@@ -36,6 +37,11 @@ func (s *UserService) FindAll(ctx context.Context) ([]*entity.User, error) {
 }
 
 func (s *UserService) Create(ctx context.Context, user *entity.User) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hashedPassword)
 	return s.repository.Create(ctx, user)
 }
 
@@ -44,6 +50,13 @@ func (s *UserService) Update(ctx context.Context, user *entity.User) error {
 		if user.Role != "Administrator" && user.Role != "Editor" {
 			return errors.New("role harus di isi Administrator / Editor")
 		}
+	}
+	if user.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		user.Password = string(hashedPassword)
 	}
 	return s.repository.Update(ctx, user)
 }

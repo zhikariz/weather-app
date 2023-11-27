@@ -38,13 +38,13 @@ func (h *AuthHandler) Login(ctx echo.Context) error {
 	user, err := h.loginService.Login(ctx.Request().Context(), input.Email, input.Password)
 
 	if err != nil {
-		return ctx.JSON(http.StatusUnprocessableEntity, err)
+		return ctx.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	accessToken, err := h.tokenService.GenerateAccessToken(ctx.Request().Context(), user)
 
 	if err != nil {
-		return ctx.JSON(http.StatusUnprocessableEntity, err)
+		return ctx.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	data := map[string]string{
