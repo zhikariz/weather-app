@@ -1,13 +1,9 @@
 package handler
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
-	"github.com/zhikariz/weather-app/common"
 	"github.com/zhikariz/weather-app/entity"
 	"github.com/zhikariz/weather-app/internal/config"
 	"github.com/zhikariz/weather-app/internal/http/validator"
@@ -26,24 +22,6 @@ func NewUserHandler(
 }
 
 func (h *UserHandler) GetAllUsers(ctx echo.Context) error {
-	// Parse the token
-	token := ctx.Get("user").(string)
-
-	claims := &common.JwtCustomClaims{}
-	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(h.cfg.JWT.SecretKey), nil
-	})
-
-	if err != nil {
-		return ctx.JSON(http.StatusForbidden, errors.New("unauthorized"))
-	}
-
-	if claims.Email != "helmi@ganteng.com" {
-		return ctx.JSON(http.StatusForbidden, errors.New("you don't have permission to access this resource"))
-	}
-
-	fmt.Println(claims.Email)
-
 	users, err := h.userService.FindAll(ctx.Request().Context())
 	if err != nil {
 		return ctx.JSON(http.StatusUnprocessableEntity, err)
@@ -56,13 +34,14 @@ func (h *UserHandler) CreateUser(ctx echo.Context) error {
 		Name     string `json:"name" validate:"required"`
 		Email    string `json:"email" validate:"required"`
 		Password string `json:"password" validate:"required"`
+		Role     string `json:"role" validate:"required,oneof=Administrator Editor"`
 	}
 
 	if err := ctx.Bind(&input); err != nil {
 		return ctx.JSON(http.StatusBadRequest, validator.ValidatorErrors(err))
 	}
 
-	user := entity.NewUser(input.Name, input.Email, input.Password)
+	user := entity.NewUser(input.Name, input.Email, input.Password, input.Role)
 	err := h.userService.Create(ctx.Request().Context(), user)
 	if err != nil {
 		return ctx.JSON(http.StatusUnprocessableEntity, err)
@@ -74,23 +53,24 @@ func (h *UserHandler) CreateUser(ctx echo.Context) error {
 func (h *UserHandler) UpdateUser(ctx echo.Context) error {
 	var input struct {
 		ID       int64  `param:"id" validate:"required"`
-		Name     string `json:"name" validate:"required"`
-		Email    string `json:"email" validate:"required"`
-		Password string `json:"password" validate:"required"`
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		Role     string `json:"role"`
 	}
 
 	if err := ctx.Bind(&input); err != nil {
 		return ctx.JSON(http.StatusBadRequest, validator.ValidatorErrors(err))
 	}
 
-	user := entity.UpdateUser(input.ID, input.Name, input.Email, input.Password)
+	user := entity.UpdateUser(input.ID, input.Name, input.Email, input.Password, input.Role)
 
 	err := h.userService.Update(ctx.Request().Context(), user)
 	if err != nil {
-		return ctx.JSON(http.StatusUnprocessableEntity, err)
+		return ctx.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	return ctx.JSON(http.StatusOK, user)
+	return ctx.JSON(http.StatusOK, map[string]string{"success": "succesfully update user"})
 }
 
 func (h *UserHandler) DeleteUser(ctx echo.Context) error {

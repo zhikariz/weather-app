@@ -42,7 +42,7 @@ func NewServer(
 
 	for _, private := range privateRoutes {
 		// v1.Add(private.Method, private.Path, private.Handler, JWTProtected(cfg.JWT.SecretKey), SessionProtected())
-		v1.Add(private.Method, private.Path, private.Handler, SessionProtected())
+		v1.Add(private.Method, private.Path, private.Handler, JWTProtected(cfg.JWT.SecretKey), RBACMiddleware(private.Roles...))
 	}
 
 	e.GET("/ping", func(c echo.Context) error {
@@ -72,4 +72,34 @@ func SessionProtected() echo.MiddlewareFunc {
 			return next(ctx)
 		}
 	}
+}
+
+func RBACMiddleware(roles ...string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			user, ok := c.Get("user").(*jwt.Token)
+			if !ok {
+				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "silahkan login terlebih dahulu"})
+			}
+
+			claims := user.Claims.(*common.JwtCustomClaims)
+
+			// Check if the user has the required role
+			if !contains(roles, claims.Role) {
+				return c.JSON(http.StatusForbidden, map[string]string{"error": "anda tidak diperbolehkan untuk mengakses resource ini"})
+			}
+
+			return next(c)
+		}
+	}
+}
+
+// Helper function to check if a string is in a slice of strings
+func contains(slice []string, s string) bool {
+	for _, value := range slice {
+		if value == s {
+			return true
+		}
+	}
+	return false
 }

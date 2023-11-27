@@ -35,10 +35,20 @@ func (r *UserRepository) Create(ctx context.Context, user *entity.User) error {
 }
 
 func (r *UserRepository) Update(ctx context.Context, user *entity.User) error {
-	if err := r.db.WithContext(ctx).
-		Model(&entity.User{}).
-		Where("id = ?", user.ID).
-		Updates(&user).Error; err != nil {
+	query := r.db.WithContext(ctx).Model(&entity.User{}).Where("id = ?", user.ID)
+	if user.Name != "" {
+		query = query.Update("name", user.Name)
+	}
+	if user.Password != "" {
+		query = query.Update("password", user.Password)
+	}
+	if user.Role != "" {
+		query = query.Update("role", user.Role)
+	}
+	if user.Email != "" {
+		query = query.Update("email", user.Email)
+	}
+	if err := query.Error; err != nil {
 		return err
 	}
 	return nil

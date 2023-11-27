@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/zhikariz/weather-app/entity"
 )
@@ -39,6 +40,11 @@ func (s *UserService) Create(ctx context.Context, user *entity.User) error {
 }
 
 func (s *UserService) Update(ctx context.Context, user *entity.User) error {
+	if user.Role != "" {
+		if user.Role != "Administrator" && user.Role != "Editor" {
+			return errors.New("role harus di isi Administrator / Editor")
+		}
+	}
 	return s.repository.Update(ctx, user)
 }
 

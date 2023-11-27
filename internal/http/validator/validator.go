@@ -38,6 +38,8 @@ func ValidatorErrors(err error) map[string]string {
 			switch err.Tag() {
 			case "required":
 				fields[err.Field()] = fmt.Sprintf("field %s harus di isi", err.Field())
+			case "oneof":
+				fields[err.Field()] = fmt.Sprintf("field %s harus memiliki salah satu dari nilai: %s", err.Field(), err.Param())
 			default:
 				fields[err.Field()] = fmt.Sprintf("%s error with tag %s should be %s", err.Field(), err.Tag(), err.Param())
 			}
