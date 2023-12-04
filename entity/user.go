@@ -15,6 +15,7 @@ type User struct {
 	CreatedAt time.Time      `json:"-"`
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-"`
+	Documents []Document     `json:"documents" gorm:"foreignKey:UserID"`
 }
 
 func NewUser(name, email, password, role string) *User {

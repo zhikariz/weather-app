@@ -3,7 +3,9 @@ package handler
 import (
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/zhikariz/weather-app/common"
 	"github.com/zhikariz/weather-app/entity"
 	"github.com/zhikariz/weather-app/internal/config"
 	"github.com/zhikariz/weather-app/internal/http/validator"
@@ -61,6 +63,13 @@ func (h *UserHandler) UpdateUser(ctx echo.Context) error {
 
 	if err := ctx.Bind(&input); err != nil {
 		return ctx.JSON(http.StatusBadRequest, validator.ValidatorErrors(err))
+	}
+
+	dataUser, _ := ctx.Get("user").(*jwt.Token)
+	claims := dataUser.Claims.(*common.JwtCustomClaims)
+
+	if claims.Email != input.Email {
+		return ctx.JSON(http.StatusForbidden, map[string]string{"error": "you are not allowed to update this user"})
 	}
 
 	user := entity.UpdateUser(input.ID, input.Name, input.Email, input.Password, input.Role)
