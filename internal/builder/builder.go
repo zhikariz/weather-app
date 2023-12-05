@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"github.com/midtrans/midtrans-go/snap"
 	"github.com/zhikariz/weather-app/internal/config"
 	"github.com/zhikariz/weather-app/internal/http/handler"
 	"github.com/zhikariz/weather-app/internal/http/router"
@@ -9,17 +10,30 @@ import (
 	"gorm.io/gorm"
 )
 
-func BuildPublicRoutes(cfg *config.Config, db *gorm.DB) []*router.Route {
+func BuildPublicRoutes(cfg *config.Config, db *gorm.DB, midtransClient snap.Client) []*router.Route {
 	userRepository := repository.NewUserRepository(db)
+	transactionRepository := repository.NewTransactionRepository(db)
+
 	loginService := service.NewLoginService(userRepository)
 	tokenService := service.NewTokenService(cfg)
+	transactionService := service.NewTransactionService(transactionRepository)
+	paymentService := service.NewPaymentService(midtransClient)
+
 	authHandler := handler.NewAuthHandler(loginService, tokenService)
-	return router.PublicRoutes(authHandler)
+	transactionHandler := handler.NewTransactionHandler(transactionService, paymentService)
+	return router.PublicRoutes(authHandler, transactionHandler)
 }
 
-func BuildPrivateRoutes(cfg *config.Config, db *gorm.DB) []*router.Route {
+func BuildPrivateRoutes(cfg *config.Config, db *gorm.DB, midtransClient snap.Client) []*router.Route {
 	userRepository := repository.NewUserRepository(db)
+	transactionRepository := repository.NewTransactionRepository(db)
+
+	paymentService := service.NewPaymentService(midtransClient)
+	transactionService := service.NewTransactionService(transactionRepository)
 	userService := service.NewUserService(userRepository)
+
 	userHandler := handler.NewUserHandler(cfg, userService)
-	return router.PrivateRoutes(userHandler)
+	transactionHandler := handler.NewTransactionHandler(transactionService, paymentService)
+
+	return router.PrivateRoutes(userHandler, transactionHandler)
 }

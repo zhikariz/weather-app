@@ -9,10 +9,18 @@ import (
 
 // Config is a config
 type Config struct {
-	Port     string         `env:"PORT" envDefault:"8080"`
-	Postgres PostgresConfig `envPrefix:"POSTGRES_"`
-	JWT      JwtConfig      `envPrefix:"JWT_"`
-	Session  SessionConfig  `envPrefix:"SESSION_"`
+	Env            string         `env:"ENV" envDefault:"development"`
+	Port           string         `env:"PORT" envDefault:"8080"`
+	Postgres       PostgresConfig `envPrefix:"POSTGRES_"`
+	JWT            JwtConfig      `envPrefix:"JWT_"`
+	Session        SessionConfig  `envPrefix:"SESSION_"`
+	MidtransConfig MidtransConfig `envPrefix:"MIDTRANS_"`
+}
+
+type MidtransConfig struct {
+	BaseURL   string `env:"BASE_URL"`
+	ClientKey string `env:"CLIENT_KEY"`
+	ServerKey string `env:"SERVER_KEY"`
 }
 
 // JwtConfig is a config for jwt

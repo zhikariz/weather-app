@@ -23,18 +23,26 @@ type Route struct {
 	Roles   []string
 }
 
-func PublicRoutes(authHandler *handler.AuthHandler) []*Route {
+func PublicRoutes(authHandler *handler.AuthHandler,
+	transactionHandler *handler.TransactionHandler,
+) []*Route {
 	return []*Route{
 		{
 			Method:  echo.POST,
 			Path:    "/login",
 			Handler: authHandler.Login,
 		},
+		{
+			Method:  echo.POST,
+			Path:    "/transactions/webhook",
+			Handler: transactionHandler.WebHookTransaction,
+		},
 	}
 }
 
 func PrivateRoutes(
 	userHandler *handler.UserHandler,
+	transactionHandler *handler.TransactionHandler,
 ) []*Route {
 	return []*Route{
 		{
@@ -66,6 +74,12 @@ func PrivateRoutes(
 			Path:    "/users/:id",
 			Handler: userHandler.DeleteUser,
 			Roles:   onlyAdmin,
+		},
+		{
+			Method:  echo.POST,
+			Path:    "/transactions",
+			Handler: transactionHandler.CreateOrder,
+			Roles:   allRoles,
 		},
 	}
 }
