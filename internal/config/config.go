@@ -15,6 +15,13 @@ type Config struct {
 	JWT            JwtConfig      `envPrefix:"JWT_"`
 	Session        SessionConfig  `envPrefix:"SESSION_"`
 	MidtransConfig MidtransConfig `envPrefix:"MIDTRANS_"`
+	Redis          RedisConfig    `envPrefix:"REDIS_"`
+}
+
+type RedisConfig struct {
+	Host     string `env:"HOST" envDefault:"localhost"`
+	Port     string `env:"PORT" envDefault:"6379"`
+	Password string `env:"PASSWORD" envDefault:""`
 }
 
 type MidtransConfig struct {

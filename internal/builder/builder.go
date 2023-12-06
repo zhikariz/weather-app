@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"github.com/go-redis/redis/v8"
 	"github.com/midtrans/midtrans-go/snap"
 	"github.com/zhikariz/weather-app/internal/config"
 	"github.com/zhikariz/weather-app/internal/http/handler"
@@ -10,8 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func BuildPublicRoutes(cfg *config.Config, db *gorm.DB, midtransClient snap.Client) []*router.Route {
-	userRepository := repository.NewUserRepository(db)
+func BuildPublicRoutes(cfg *config.Config, db *gorm.DB, midtransClient snap.Client, redisClient *redis.Client) []*router.Route {
+	userRepository := repository.NewUserRepository(db, redisClient)
 	transactionRepository := repository.NewTransactionRepository(db)
 
 	loginService := service.NewLoginService(userRepository)
@@ -24,8 +25,8 @@ func BuildPublicRoutes(cfg *config.Config, db *gorm.DB, midtransClient snap.Clie
 	return router.PublicRoutes(authHandler, transactionHandler)
 }
 
-func BuildPrivateRoutes(cfg *config.Config, db *gorm.DB, midtransClient snap.Client) []*router.Route {
-	userRepository := repository.NewUserRepository(db)
+func BuildPrivateRoutes(cfg *config.Config, db *gorm.DB, midtransClient snap.Client, redisClient *redis.Client) []*router.Route {
+	userRepository := repository.NewUserRepository(db, redisClient)
 	transactionRepository := repository.NewTransactionRepository(db)
 
 	paymentService := service.NewPaymentService(midtransClient)
