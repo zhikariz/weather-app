@@ -1,0 +1,16 @@
+version: '3'
+services:
+  app:
+    # Nama service
+    container_name: weather-app
+    
+    # Build image menggunakan Dockerfile di direktori saat ini
+    build:
+      context: .
+    
+    # Port forwarding untuk menghubungkan port host ke port container
+    ports:
+      - "8080:8080"
+    
+    # Command untuk menjalankan aplikasi
+    command: ["./main"]
