@@ -10,8 +10,7 @@ COPY go.sum .
 
 # Download dan instal dependensi
 RUN export GOPROXY=https://proxy.golang.org && \
-    go mod download -x && \
-    go mod verify
+    go mod tidy
 
 # Salin seluruh file dari direktori aplikasi ke dalam container
 COPY . .
