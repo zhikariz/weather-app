@@ -1,6 +1,10 @@
 # Use a Golang with Debian base image
 FROM golang:1.20.5-buster
 
+# Set DNS servers
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
+    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+
 # Set the time zone
 RUN ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && \
     echo "Asia/Jakarta" > /etc/timezone
