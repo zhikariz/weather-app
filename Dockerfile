@@ -1,5 +1,5 @@
 # Use a Golang with Debian base image
-FROM golang:1.17.5-buster
+FROM golang:1.21.5-buster
 
 # Set the time zone
 RUN ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && \
