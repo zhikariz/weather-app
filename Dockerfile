@@ -1,6 +1,9 @@
 # Gunakan image resmi Golang sebagai base image
 FROM golang:latest
 
+RUN apk update && apk add tzdata && apk add -U --no-cache ca-certificates git
+ENV TZ Asia/Jakarta
+
 # Atur working directory di dalam container
 WORKDIR /app
 
