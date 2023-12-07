@@ -1,29 +1,39 @@
-# Gunakan image resmi Golang sebagai base image
+# Use a More Specific Golang Base Image
 FROM golang:1.21.5-alpine3.18
 
-RUN apk update && apk add tzdata && apk add -U --no-cache ca-certificates git
-ENV TZ Asia/Jakarta
+# Set the time zone
+RUN apk update && \
+    apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && \
+    echo "Asia/Jakarta" > /etc/timezone && \
+    apk del tzdata
 
-# Atur working directory di dalam container
+# Set the working directory
 WORKDIR /app
 
-# Salin file go.mod dan go.sum terlebih dahulu untuk mendownload dependensi
-ENV GO111MODULE=on
+# Copy go.mod and go.sum files to download dependencies
 COPY go.mod .
 COPY go.sum .
 
-# Download dan instal dependensi
+# Download and install dependencies
 RUN export GOPROXY=https://proxy.golang.org && \
     go mod tidy
 
-# Salin seluruh file dari direktori aplikasi ke dalam container
+# Copy the entire application to the container
 COPY . .
 
-# Kompilasi aplikasi Golang
+# Build the Golang application
 RUN go build -o main cmd/server/main.go
 
-# Expose port yang digunakan oleh aplikasi
+# Remove unnecessary files after the build
+RUN rm -rf go.mod go.sum
+
+# Create a non-root user for running the application
+RUN adduser -D -g '' myuser
+USER myuser
+
+# Expose the port used by the application
 EXPOSE 8080
 
-# Perintah untuk menjalankan aplikasi
+# Command to run the application
 CMD ["./main"]
