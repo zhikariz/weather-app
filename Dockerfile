@@ -1,5 +1,5 @@
 # Use a More Specific Golang Base Image
-FROM golang:1.21.5-alpine3.18
+FROM golang:latest
 
 # Set the time zone
 RUN apk update && \
