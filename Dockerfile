@@ -1,5 +1,5 @@
 # Gunakan image resmi Golang sebagai base image
-FROM golang:latest
+FROM golang:1.20-alpine3.18
 
 RUN apk update && apk add tzdata && apk add -U --no-cache ca-certificates git
 ENV TZ Asia/Jakarta
