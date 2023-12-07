@@ -8,6 +8,7 @@ ENV TZ Asia/Jakarta
 WORKDIR /app
 
 # Salin file go.mod dan go.sum terlebih dahulu untuk mendownload dependensi
+ENV GO111MODULE=on
 COPY go.mod .
 COPY go.sum .
 
