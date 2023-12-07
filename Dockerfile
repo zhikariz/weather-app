@@ -9,7 +9,7 @@ COPY go.mod .
 COPY go.sum .
 
 # Download dan instal dependensi
-RUN go mod download
+RUN go mod tidy
 
 # Salin seluruh file dari direktori aplikasi ke dalam container
 COPY . .
