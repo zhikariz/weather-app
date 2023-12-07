@@ -11,6 +11,8 @@ services:
     # Port forwarding untuk menghubungkan port host ke port container
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     
     # Command untuk menjalankan aplikasi
     command: ["./main"]
