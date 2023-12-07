@@ -1,12 +1,9 @@
-# Use a More Specific Golang Base Image
-FROM golang:latest
+# Use a Golang with Debian base image
+FROM golang:1.17.5-buster
 
 # Set the time zone
-RUN apk update && \
-    apk add --no-cache tzdata && \
-    cp /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && \
-    echo "Asia/Jakarta" > /etc/timezone && \
-    apk del tzdata
+RUN ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && \
+    echo "Asia/Jakarta" > /etc/timezone
 
 # Set the working directory
 WORKDIR /app
