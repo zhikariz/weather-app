@@ -25,10 +25,6 @@ RUN go build -o main cmd/server/main.go
 # Remove unnecessary files after the build
 RUN rm -rf go.mod go.sum
 
-# Create a non-root user for running the application
-RUN adduser -D -g '' myuser
-USER myuser
-
 # Expose the port used by the application
 EXPOSE 8080
 
