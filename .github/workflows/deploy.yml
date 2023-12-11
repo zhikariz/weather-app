@@ -10,6 +10,15 @@ jobs:
     runs-on: ubuntu-latest
   
     steps:
+    - name: Extract Version
+      id: version_step
+      run: |
+        echo "##[set-output name=latest_tag;]$GITHUB_REPOSITORY:latest"
+    
+    - name: Print Version
+      run: |
+        echo ${{steps.version_step.outputs.latest_tag}}
+
     - name: Checkout Repository
       uses: actions/checkout@v2
 
@@ -24,12 +33,18 @@ jobs:
       with:
         username: zhikariz
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: PrepareReg Names
+      id: read-docker-image-identifiers
+      run: |
+        echo LATEST_TAG=$(echo ${{ steps.version_step.outputs.latest_tag  }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
 
     - name: Push Docker image to Docker Hub
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: latest 
+        tags: |
+            ${{env.LATEST_TAG}}
 
     - name: SSH into the server
       uses: appleboy/ssh-action@master
