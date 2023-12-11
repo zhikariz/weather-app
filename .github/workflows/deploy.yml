@@ -23,7 +23,7 @@ jobs:
       run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u zhikariz --password-stdin
 
     - name: Push Docker image to Docker Hub
-        uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v2
         with:
           push: true
           tags: latest 
