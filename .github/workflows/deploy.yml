@@ -12,20 +12,18 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
-    
+
     - name: Set up Docker
       uses: docker/setup-buildx-action@v1
 
     - name: Build Docker image
-      # run: docker buildx build --file Dockerfile --output type=image,name=weather-app:latest .
-      run: docker buildx build --file Dockerfile --output type=image,name=ghcr.io/${{ github.repository }}:latest .
-    
-    - name: Log in to GitHub Container Registry
-      run: echo "${{ secrets.CR_PATH }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-    
-    - name: Push Docker image to GitHub Container Registry
-      run: docker push ghcr.io/${{ github.repository }}:latest
-      # run: docker push docker.pkg.github.com/${{ github.repository }}/weather-app:latest
+      run: docker buildx build --file Dockerfile --output type=image,name=zhikariz/weather-app:latest .
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u zhikariz --password-stdin
+
+    - name: Push Docker image to Docker Hub
+      run: docker push zhikariz/weather-app:latest
 
     - name: SSH into the server
       uses: appleboy/ssh-action@master
@@ -35,7 +33,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           # Pull the lastest Docker image
-          docker pull docker.pkg.github.com/${{ github.repository }}/weather-app:latest
+          docker pull zhikariz/weather-app:latest
 
           # Stop and remove the existing container (if any)
           docker-compose -f /root/weather-app/docker-compose.yml down
