@@ -1,0 +1,42 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+  
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build Docker image
+      run: docker buildx build --file Dockerfile --output type=image,name=weather-app:latest .
+    
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN}}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+    
+    - name: Push Docker image to GitHub Container Registry
+      run: docker push docker.pkg.github.com/${{ github.repository }}/weather-app:latest
+
+    - name: SSH into the server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          # Pull the lastest Docker image
+          docker pull docker.pkg.github.com/${{ github.repository }}/weather-app:latest
+
+          # Stop and remove the existing container (if any)
+          docker-compose -f /root/weather-app/docker-compose.yml down
+
+          # Start the updated container
+          docker compose -f /root/weather-app/docker-compose.yml up -d
