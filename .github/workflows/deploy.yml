@@ -18,13 +18,13 @@ jobs:
 
     - name: Build Docker image
       # run: docker buildx build --file Dockerfile --output type=image,name=weather-app:latest .
-      run: docker buildx build --file Dockerfile --output type=image,name=ghcr.io/${{ github.repository }}/weather-app:latest .
+      run: docker buildx build --file Dockerfile --output type=image,name=ghcr.io/${{ github.repository }}:latest .
     
     - name: Log in to GitHub Container Registry
       run: echo "${{ secrets.GITHUB_TOKEN}}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
     
     - name: Push Docker image to GitHub Container Registry
-      run: docker push ghcr.io/${{ github.repository }}/weather-app:latest
+      run: docker push ghcr.io/${{ github.repository }}:latest
       # run: docker push docker.pkg.github.com/${{ github.repository }}/weather-app:latest
 
     - name: SSH into the server
